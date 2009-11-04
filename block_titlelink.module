@@ -47,7 +47,7 @@ function block_titlelink_validate($form, &$form_state) {
       //TODO: Validate Link based on URL and PATH
       $link = $form_state['values']['title_path'];
       //Save Form Link
-      if ($module && $delta && $link) {
+      if ($module && $delta) {
         $name = $module .'_'. $delta;
         //Delete link if empty
         if (strlen($link) == 0) {
