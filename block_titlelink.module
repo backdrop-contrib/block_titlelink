@@ -47,7 +47,7 @@ function block_titlelink_validate($form, &$form_state) {
       //TODO: Validate Link based on URL and PATH
       $link = $form_state['values']['title_path'];
       //Save Form Link
-      if ($module && $delta) {
+      if ($module && ($delta || $delta === 0)) {
         $name = $module .'_'. $delta;
         //Delete link if empty
         if (strlen($link) == 0) {
@@ -67,8 +67,11 @@ function block_titlelink_validate($form, &$form_state) {
 **/
 function block_titlelink_preprocess_block(&$vars, $hook) {  
   if ($hook == 'block') {
-    $var_name = $vars['block']->module .'_'. $vars['block']->delta;
     $vars['block']->title_link = _block_titlelink_get_link($vars['block']);
+    $title_link = $vars['block']->title_link;
+    if ($title_link != '') {
+      $vars['block']->subject = l($vars['block']->subject, $title_link, array('attributes' => array('class' => 'block-title-link')));
+    }
   }
 }
 
