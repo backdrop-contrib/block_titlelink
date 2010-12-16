@@ -8,7 +8,7 @@
 define('BLOCK_TITLELINK_VARIABLE_PREFIX', 'block_titlelink_');
 
 /**
- * Implementation of hook_form_alter 
+ * Implementation of hook_form_alter
 **/
 function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'block_admin_configure') {
@@ -18,7 +18,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
     //Assign weight to block title so it appears above link
     if (!isset($form['block_settings']['#weight'])) {
       $form['block_settings']['#weight'] = -1;
-    }    
+    }
     $form['block_titlelink'] = array(
       '#type' => 'fieldset',
       '#title' => t('Block Title Link settings'),
@@ -31,7 +31,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => $link,
       '#description' => t('URL for Block Title to link to.'),
     );
-    
+
    $form['#validate'][] = 'block_titlelink_validate';
   }
 }
@@ -65,12 +65,12 @@ function block_titlelink_validate($form, &$form_state) {
 /**
  * Implementation of hook_preprocess_block
 **/
-function block_titlelink_preprocess_block(&$vars, $hook) {  
+function block_titlelink_preprocess_block(&$vars, $hook) {
   if ($hook == 'block') {
     $vars['block']->title_link = _block_titlelink_get_link($vars['block']);
     $title_link = $vars['block']->title_link;
     if ($title_link != '') {
-      $vars['block']->subject = l($vars['block']->subject, $title_link, array('attributes' => array('class' => 'block-title-link')));
+      $vars['block']->subject = l($vars['block']->subject, $title_link, array('attributes' => array('class' => 'block-title-link'), 'html'=>'true'));
     }
   }
 }
@@ -99,9 +99,9 @@ function _block_titlelink_save_link($name, $value) {
   variable_set($varname, $value);
 }
 
-/** 
+/**
  * Function to delete a link variable
- * @param string $name 
+ * @param string $name
 **/
 function _block_titlelink_delete_link($name) {
   $varname = BLOCK_TITLELINK_VARIABLE_PREFIX . $name;
