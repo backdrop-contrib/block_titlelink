@@ -12,54 +12,56 @@ define('BLOCK_TITLELINK_VARIABLE_PREFIX', 'block_titlelink_');
 **/
 function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'block_admin_configure') {
+    $block = new stdClass();
     $block->module = $form['module']['#value'];
     $block->delta = $form['delta']['#value'];
     $link = _block_titlelink_get_link($block);
+    //Define Titlelink form elements
+    $form['settings']['block_titlelink'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Block Title Link Settings'),
+      '#collapsible' => TRUE,
+      '#weight' => 0,
+    );
+    $form['settings']['block_titlelink']['title_path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title Path'),
+      '#default_value' => $link,
+      '#description' => t('URL path of Block Title.'),
+    );
     //Assign weight to block title so it appears above link
     if (!isset($form['block_settings']['#weight'])) {
       $form['block_settings']['#weight'] = -1;
     }
-    $form['block_titlelink'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Block Title Link settings'),
-      '#collapsible' => TRUE,
-      '#weight' => 0,
-    );
-    $form['block_titlelink']['title_path'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Title Path'),
-      '#default_value' => $link,
-      '#description' => t('URL for Block Title to link to.'),
-    );
-
-   $form['#validate'][] = 'block_titlelink_validate';
+    $form['#validate'][] = 'block_titlelink_form_validate';
+    $form['#submit'][] = 'block_titlelink_form_submit';
   }
 }
 
 /**
- * Implementation of hook_validation()
+ * Implementation of hook_validate()
 **/
-function block_titlelink_validate($form, &$form_state) {
-  if ($form_state['values']['form_id'] == 'block_admin_configure') {
-    if (isset($form_state['values']['title_path']) && user_access('administer blocks')) {
-      $module = arg(4);
-      $delta = arg(5);
-      //TODO: Validate Link based on URL and PATH
-      $link = $form_state['values']['title_path'];
-      //Save Form Link
-      if ($module && ($delta || $delta === 0)) {
-        $name = $module .'_'. $delta;
-        //Delete link if empty
-        if (strlen($link) == 0) {
-          _block_titlelink_delete_link($name);
-        }
-        else {
-          _block_titlelink_save_link($name, $link);
-        }
-      }
-    }
+function block_titlelink_form_validate(&$elements, &$form_state, $form_id = NULL) {
+  $title_path= trim($form_state['values']['title_path']);
+  if(!empty($title_path) && !valid_url($title_path) && !valid_url($title_path,TRUE)) {
+    form_set_error('title_path', t('The title path appears to contain an invalid URL.'));
   }
-  block_admin_configure_validate($form, $form_state);
+}
+
+/**
+ * Implementation of hook_submit()
+*/
+function block_titlelink_form_submit($form, &$form_state) {
+  $module = $form['module']['#value'];
+  $delta = $form['delta']['#value'];
+  $name = $module . '_' . $delta;
+  $title_path = trim($form_state['values']['title_path']);
+  if(empty($title_path)) {
+    _block_titlelink_delete_link($name);
+  }
+  else {
+    _block_titlelink_save_link($name, $title_path);
+  }
 }
 
 /**
