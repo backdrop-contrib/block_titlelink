@@ -17,6 +17,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
     $block->delta = $form['delta']['#value'];
 		$titlelink_data = _block_titlelink_get_data($block);
 		$url = (isset($titlelink_data['url'])) ? $titlelink_data['url'] : NULL;
+    $title = (isset($titlelink_data['title'])) ? check_plain($titlelink_data['title']) : NULL;
 		$display_link = (isset($titlelink_data['display'])) ? $titlelink_data['display'] : TRUE;
     //Define Titlelink form elements
     $form['settings']['block_titlelink'] = array(
@@ -30,6 +31,12 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#title' => t('Title Path'),
       '#default_value' => $url,
       '#description' => t('URL path of Block Title.'),
+    );
+    $form['settings']['block_titlelink']['title_link_title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title Attribute'),
+      '#descrption' => t('Value for the <a> title attribute.'),
+      '#default_value' => $title,
     );
     $form['settings']['block_titlelink']['display_link'] = array(
       '#type' => 'checkbox',
@@ -67,6 +74,7 @@ function block_titlelink_form_submit($form, &$form_state) {
 	$data = array(
   	'url' => $url,
 		'display' => $form_state['values']['display_link'],
+    'title' => $form_state['values']['title_link_title'],
 	);
   if(empty($url)) {
     _block_titlelink_delete_data($block);
@@ -84,9 +92,19 @@ function block_titlelink_preprocess_block(&$vars, $hook) {
 		$data = _block_titlelink_get_data($vars['block']);
 		if($data) {
 			$vars['block']->title_link = (isset($data['url'])) ? trim($data['url']) : NULL;
+      $vars['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
       $display = (isset($data['display'])) ? $data['display'] : TRUE;
 			if (!empty($vars['block']->title_link) && $display) {
-				$vars['block']->subject = l($vars['block']->subject, $vars['block']->title_link, array('attributes' => array('class' => 'block-title-link'), 'html'=>'true'));
+        $attributes = array(
+          'attributes' => array(
+            'class' => 'block-title-link',
+          ),
+          'html' => TRUE,
+        );
+        if(!empty($vars['block']->title_link_title)) {
+          $attributes['attributes']['title'] = $vars['block']->title_link_title;
+        }
+				$vars['block']->subject = l($vars['block']->subject, $vars['block']->title_link, $attributes);
 			}
 		}
   }
