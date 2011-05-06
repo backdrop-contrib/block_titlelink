@@ -186,12 +186,26 @@ function _block_titlelink_delete_data($block) {
 */
 function _block_titlelink_validate_url($url) {
   $text = $url;
-  define('LINK_EXTERNAL', 'external');
-  define('LINK_INTERNAL', 'internal');
-  define('LINK_FRONT', 'front');
-  define('LINK_EMAIL', 'email');
-  define('LINK_NEWS', 'news');
-  define('LINK_DOMAINS', 'aero|arpa|asia|biz|com|cat|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel|mobi|local');
+  // These constants were heisted from the field_module. 
+  // Check if they exist
+  if(!defined('LINK_EXTERNAL')) {
+    define('LINK_EXTERNAL', 'external');
+  }
+  if(!defined('LINK_INTERNAL')) {
+    define('LINK_INTERNAL', 'internal');
+  }
+  if(!defined('LINK_FRONT')) {
+    define('LINK_FRONT', 'front');
+  }
+  if(!defined('LINK_EMAIL')) {
+    define('LINK_EMAIL', 'email');
+  }
+  if(!defined('LINK_NEWS')) {
+    define('LINK_NEWS', 'news');
+  }
+  if(!defined('LINK_DOMAINS')) {
+    define('LINK_DOMAINS', 'aero|arpa|asia|biz|com|cat|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel|mobi|local');
+  }
 
   $LINK_ICHARS_DOMAIN = (string) html_entity_decode(implode("", array(
     "&#x00E6;", // æ
