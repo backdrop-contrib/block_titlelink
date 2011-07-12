@@ -30,7 +30,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#title' => t('Title Path'),
       '#default_value' => $url,
-      '#description' => t('URL path of Block Title.'),
+      '#description' => t('URL path of Block Title. Tokens are supported.'),
     );
     $form['settings']['block_titlelink']['title_link_title'] = array(
       '#type' => 'textfield',
@@ -43,6 +43,11 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#title' => t('Display Link'),
       '#description' => t('Select this option if title should render as a link. If deselected, the title path value is stored within the block object as $block->title_link but is not rendered. This is useful if you wish to use the link elsewhere in the block template (ex: as an icon).'),
       '#default_value' => $display_link,
+    );
+    //Provide Token Help
+    $form['settings']['block_titlelink']['token_help'] = array( 
+      '#theme' => 'token_tree',
+      '#token_types' => array('user'),
     );
     //Assign weight to block title so it appears above link
     if (!isset($form['block_settings']['#weight'])) {
@@ -89,11 +94,23 @@ function block_titlelink_form_submit($form, &$form_state) {
  * Implementation of hook_preprocess_block
 */
 function block_titlelink_preprocess_block(&$vars, $hook) {
+  global $user;
   if ($hook == 'block') {
     $data = _block_titlelink_get_data($vars['block']);
     if($data) {
       $vars['block']->title_link = (isset($data['url'])) ? trim($data['url']) : NULL;
       $vars['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
+      // Add Tokens
+      if(function_exists('token_replace')) {
+        $token_params = array( 
+          'user' => $user,
+        );
+        $vars['block']->title_link = token_replace($vars['block']->title_link, $token_params);
+      }
+      // PHP Eval
+      if (module_exists('php')) {
+        $vars['block']->title_link = php_eval($vars['block']->title_link); 
+      }
       $display = (isset($data['display'])) ? $data['display'] : TRUE;
       if (!empty($vars['block']->title_link) && $display) {
         $attributes = array(
