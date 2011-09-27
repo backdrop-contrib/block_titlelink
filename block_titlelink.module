@@ -11,7 +11,7 @@ define('BLOCK_TITLELINK_VARIABLE_PREFIX', 'block_titlelink_');
  * Implementation of hook_form_alter
 */
 function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'block_admin_configure') {
+  if ($form_id == 'block_admin_configure' || $form_id == 'block_add_block_form') {
     $block = new stdClass();
     $block->module = $form['module']['#value'];
     $block->delta = $form['delta']['#value'];
