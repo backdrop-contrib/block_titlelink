@@ -122,7 +122,7 @@ function block_titlelink_preprocess_block(&$vars, $hook) {
         if(!empty($vars['block']->title_link_title)) {
           $attributes['attributes']['title'] = $vars['block']->title_link_title;
         }
-        $vars['block']->subject = l(t($vars['block']->subject), t($vars['block']->title_link), $attributes);
+        $vars['block']->subject = l(t($vars['block']->subject), $vars['block']->title_link, $attributes);
       }
     }
   }
