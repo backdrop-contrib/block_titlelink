@@ -45,7 +45,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => $display_link,
     );
     //Provide Token Help
-    $form['settings']['block_titlelink']['token_help'] = array( 
+    $form['settings']['block_titlelink']['token_help'] = array(
       '#theme' => 'token_tree',
       '#token_types' => array('user'),
     );
@@ -75,7 +75,7 @@ function block_titlelink_form_validate(&$elements, &$form_state, $form_id = NULL
 function block_titlelink_form_submit($form, &$form_state) {
   $block = new stdClass();
   $block->module = $form['module']['#value'];
-  $block->delta = $form['delta']['#value'];
+  $block->delta = $form_state['values']['delta'];
   $url = trim($form_state['values']['title_link']);
   $data = array(
     'url' => $url,
@@ -102,14 +102,14 @@ function block_titlelink_preprocess_block(&$vars, $hook) {
       $vars['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
       // Add Tokens
       if(function_exists('token_replace')) {
-        $token_params = array( 
+        $token_params = array(
           'user' => $user,
         );
         $vars['block']->title_link = token_replace($vars['block']->title_link, $token_params);
       }
       // PHP Eval
       if (module_exists('php')) {
-        $vars['block']->title_link = php_eval($vars['block']->title_link); 
+        $vars['block']->title_link = php_eval($vars['block']->title_link);
       }
       $display = (isset($data['display'])) ? $data['display'] : TRUE;
       if (!empty($vars['block']->title_link) && $display) {
@@ -203,7 +203,7 @@ function _block_titlelink_delete_data($block) {
 */
 function _block_titlelink_validate_url($url) {
   $text = $url;
-  // These constants were heisted from the field_module. 
+  // These constants were heisted from the field_module.
   // Check if they exist
   if(!defined('LINK_EXTERNAL')) {
     define('LINK_EXTERNAL', 'external');
