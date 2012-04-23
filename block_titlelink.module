@@ -25,6 +25,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#title' => t('Block Title Link Settings'),
       '#collapsible' => TRUE,
       '#weight' => 0,
+      '#tree' => TRUE,
     );
     $form['settings']['block_titlelink']['title_link'] = array(
       '#type' => 'textfield',
@@ -62,10 +63,10 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
  * Implementation of hook_validate()
 */
 function block_titlelink_form_validate(&$elements, &$form_state, $form_id = NULL) {
-  $title_link = trim($form_state['values']['title_link']);
+  $title_link = trim($form_state['values']['block_titlelink']['title_link']);
   $valid = _block_titlelink_validate_url($title_link);
   if(!empty($title_link) && !$valid) {
-    form_set_error('title_link', t('The title path appears to contain an invalid URL.'));
+    form_error($elements['settings']['block_titlelink']['title_link'], t('The title path appears to contain an invalid URL.'));
   }
 }
 
@@ -76,11 +77,11 @@ function block_titlelink_form_submit($form, &$form_state) {
   $block = new stdClass();
   $block->module = $form['module']['#value'];
   $block->delta = $form_state['values']['delta'];
-  $url = trim($form_state['values']['title_link']);
+  $url = trim($form_state['values']['block_titlelink']['title_link']);
   $data = array(
     'url' => $url,
-    'display' => $form_state['values']['display_link'],
-    'title' => $form_state['values']['title_link_title'],
+    'display' => $form_state['values']['block_titlelink']['display_link'],
+    'title' => $form_state['values']['block_titlelink']['title_link_title'],
   );
   if(empty($url)) {
     _block_titlelink_delete_data($block);
