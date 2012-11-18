@@ -106,6 +106,7 @@ function block_titlelink_process_block(&$vars) {
         'user' => $user,
       );
       $vars['block']->title_link = token_replace($vars['block']->title_link, $token_params);
+      $vars['block']->title_link_title = token_replace($vars['block']->title_link_title, $token_params);
     }
     // PHP Eval
     if (module_exists('php')) {
