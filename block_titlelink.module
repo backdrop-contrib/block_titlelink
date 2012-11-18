@@ -17,7 +17,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
     $block->delta = $form['delta']['#value'];
     $titlelink_data = _block_titlelink_get_data($block);
     $url = (isset($titlelink_data['url'])) ? $titlelink_data['url'] : NULL;
-    $title = (isset($titlelink_data['title'])) ? check_plain($titlelink_data['title']) : NULL;
+    $title = (isset($titlelink_data['title'])) ? $titlelink_data['title'] : NULL;
     $display_link = (isset($titlelink_data['display'])) ? $titlelink_data['display'] : TRUE;
     //Define Titlelink form elements
     $form['settings']['block_titlelink'] = array(
