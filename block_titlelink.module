@@ -18,7 +18,10 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
     $titlelink_data = _block_titlelink_get_data($block);
     $url = (isset($titlelink_data['url'])) ? $titlelink_data['url'] : NULL;
     $title = (isset($titlelink_data['title'])) ? $titlelink_data['title'] : NULL;
+    $targets = drupal_map_assoc(array('_blank', '_self', '_parent', '_top'));
+    $target = (isset($titlelink_data['target'])) ? $titlelink_data['target'] : NULL;
     $display_link = (isset($titlelink_data['display'])) ? $titlelink_data['display'] : TRUE;
+
     //Define Titlelink form elements
     $form['settings']['block_titlelink'] = array(
       '#type' => 'fieldset',
@@ -35,9 +38,17 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
     );
     $form['settings']['block_titlelink']['title_link_title'] = array(
       '#type' => 'textfield',
-      '#title' => t('Title Attribute'),
-      '#description' => t('Value for the &lt;a&gt; title attribute.'),
+      '#title' => t('title attribute'),
+      '#description' => t('value for the &lt;a&gt; title attribute.'),
       '#default_value' => $title,
+    );
+    $form['settings']['block_titlelink']['title_link_target'] = array(
+      '#type' => 'select',
+      '#title' => t('link target'),
+      '#options' => $targets,
+      '#empty_value' => '',
+      '#description' => t('Add a target to open the link in a new tab/window'),
+      '#default_value' => $target,
     );
     $form['settings']['block_titlelink']['display_link'] = array(
       '#type' => 'checkbox',
@@ -82,6 +93,7 @@ function block_titlelink_form_submit($form, &$form_state) {
     'url' => $url,
     'display' => $form_state['values']['block_titlelink']['display_link'],
     'title' => $form_state['values']['block_titlelink']['title_link_title'],
+    'target' => $form_state['values']['block_titlelink']['title_link_target'],
   );
   if(empty($url)) {
     _block_titlelink_delete_data($block);
@@ -97,9 +109,11 @@ function block_titlelink_form_submit($form, &$form_state) {
 function block_titlelink_process_block(&$vars) {
   global $user;
   $data = _block_titlelink_get_data($vars['block']);
+  dpm($data);
   if($data) {
     $vars['block']->title_link = (isset($data['url'])) ? trim($data['url']) : NULL;
     $vars['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
+    $vars['block']->title_link_target = (isset($data['target'])) ? $data['target'] : NULL;
     // Add Tokens
     if(function_exists('token_replace')) {
       $token_params = array(
@@ -122,6 +136,9 @@ function block_titlelink_process_block(&$vars) {
       );
       if(!empty($vars['block']->title_link_title)) {
         $attributes['attributes']['title'] = $vars['block']->title_link_title;
+      }
+      if(!empty($vars['block']->title_link_target)) {
+        $attributes['attributes']['target'] = $vars['block']->title_link_target;
       }
       $vars['block']->subject = l(t($vars['block']->subject), $vars['block']->title_link, $attributes);
     }
