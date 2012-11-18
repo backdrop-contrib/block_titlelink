@@ -109,7 +109,6 @@ function block_titlelink_form_submit($form, &$form_state) {
 function block_titlelink_process_block(&$vars) {
   global $user;
   $data = _block_titlelink_get_data($vars['block']);
-  dpm($data);
   if($data) {
     $vars['block']->title_link = (isset($data['url'])) ? trim($data['url']) : NULL;
     $vars['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
