@@ -195,7 +195,7 @@ function _block_titlelink_get_data($block) {
  * $data['display'] - Boolean, display title as link
 */
 function _block_titlelink_save_data($block, $data) {
-  if (empty($block->module) || empty($block->delta)) {
+  if (!isset($block->module) || !isset($block->delta)) {
     return FALSE;
   }
   $varname = BLOCK_TITLELINK_VARIABLE_PREFIX . $block->module .'_'. $block->delta;
