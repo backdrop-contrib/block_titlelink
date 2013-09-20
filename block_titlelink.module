@@ -139,7 +139,21 @@ function block_titlelink_process_block(&$vars) {
       if(!empty($vars['block']->title_link_target)) {
         $attributes['attributes']['target'] = $vars['block']->title_link_target;
       }
-      $vars['block']->subject = l(t($vars['block']->subject), $vars['block']->title_link, $attributes);
+
+      // Allow Drupal to parse the URL and provide us with a keyed array
+      // that we can hand off to l()
+      $parsed_url = drupal_parse_url($vars['block']->title_link);
+
+      // Add in the query string if one exists.
+      if (!empty($parsed_url['query'])) {
+        $attributes['query'] = $parsed_url['query'];
+      }
+      // Build the fragment onto the end if it is present.
+      if (!empty($parsed_url['fragment'])) {
+        $attributes['fragment'] = $parsed_url['fragment'];
+      }
+
+      $vars['block']->subject = l(t($vars['block']->subject), $parsed_url['path'], $attributes);
     }
   }
 }
