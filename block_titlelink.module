@@ -34,7 +34,7 @@ function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#title' => t('Title Path'),
       '#default_value' => $url,
-      '#description' => t('URL path of Block Title. Tokens are supported.'),
+      '#description' => t('URL path of Block Title. Tokens are supported. If this field is left blank, the block title link information will be removed and set back to defaults for this block.'),
       '#maxlength' => '255',
     );
     $form['settings']['block_titlelink']['title_link_title'] = array(
