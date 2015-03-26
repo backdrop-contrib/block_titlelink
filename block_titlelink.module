@@ -8,10 +8,23 @@
 define('BLOCK_TITLELINK_VARIABLE_PREFIX', 'block_titlelink_');
 
 /**
+ * Implementation of hook_permission
+*/
+
+function block_titlelink_permission() {
+  return array(
+    'set block title links' => array(
+      'title' => t('Set block title links'),
+      'description' => t('Set optional links for block titles'),
+    ),
+  );
+}
+
+/**
  * Implementation of hook_form_alter
 */
 function block_titlelink_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'block_admin_configure' || $form_id == 'block_add_block_form') {
+  if (($form_id == 'block_admin_configure' || $form_id == 'block_add_block_form') && user_access('set block title links')) {
     $block = new stdClass();
     $block->module = $form['module']['#value'];
     $block->delta = $form['delta']['#value'];
