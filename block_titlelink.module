@@ -119,9 +119,9 @@ function block_titlelink_form_submit($form, &$form_state) {
 }
 
 /**
- * Implementation of hook_process_block
-*/
-function block_titlelink_process_block(&$vars) {
+ * Implements hook_preprocess_block().
+ */
+function block_titlelink_preprocess_block(&$vars) {
   global $user;
   $data = _block_titlelink_get_data($vars['block']);
   if($data) {
