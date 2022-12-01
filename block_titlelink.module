@@ -1,6 +1,6 @@
 <?php
 /**
- * @file 
+ * @file
  * Module for adding a link to a block title.
 */
 
@@ -51,6 +51,12 @@ function block_titlelink_form(&$form, &$form_state) {
     '#weight' => 10,
     '#tree' => TRUE,
   );
+  $form['block_titlelink']['display_link'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Render the block title as a link'),
+    '#description' => t('When unchecked, the title will not be linked, but link settings set below will still be available in the block template. This can be used to place the link elsewhere in the block.'),
+    '#default_value' => $display_link,
+  );
   $form['block_titlelink']['title_link'] = array(
     '#type' => 'textfield',
     '#title' => t('Link destination'),
@@ -59,10 +65,10 @@ function block_titlelink_form(&$form, &$form_state) {
     '#maxlength' => '255',
   );
   $targets = array(
-    '_blank' => '_blank: ' . t('Opens in a new window or tab.'), 
-    '_parent' => '_parent: ' . t('Opens in the parent frame.'), 
+    '_blank' => '_blank: ' . t('Opens in a new window or tab.'),
+    '_parent' => '_parent: ' . t('Opens in the parent frame.'),
     '_top' => '_top: ' . t('Opens in the full body of the window.'),
-    '_self' => '_self: ' . t('Opens in the same frame (this is the default behavior).'), 
+    '_self' => '_self: ' . t('Opens in the same frame (this is the default behavior).'),
   );
   $form['block_titlelink']['title_link_target'] = array(
     '#type' => 'select',
@@ -74,19 +80,12 @@ function block_titlelink_form(&$form, &$form_state) {
   $form['block_titlelink']['title_link_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Link title attribute'),
-    '#description' => t('The &lt;a title="" &gt; attribute can clarify or further describe the purpose of a link. Appears only on hover.'),
+    '#description' => t('The &lt;a title="" &gt; attribute can clarify or further describe the purpose of a link. It appears only on hover.'),
     '#default_value' => $title,
-  );
-  $form['block_titlelink']['display_link'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Render the block title as a link'),
-    '#description' => t('When unchcked, the title will not be linked, but link settings will be available in the block template. This can be used to place the link elsewhere in the block.'),
-    '#default_value' => $display_link,
   );
   // Provide Token Help
   $form['block_titlelink']['token_help'] = array(
     '#theme' => 'token_tree',
-    '#token_types' => array('user'),
   );
 
   $form['#validate'][] = 'block_titlelink_form_validate';

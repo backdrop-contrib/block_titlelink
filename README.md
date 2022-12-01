@@ -1,28 +1,27 @@
 Block Title Link
 ================
 
-Block Title Link allows a block to link its title. It works by adding new 
-properties to the $block object. It then uses hook_preprocess_block to wrap a 
-link around the current block title. 
+Block Title Link allows a block to link its title. It works by adding new
+properties to the $block object. It then uses hook_preprocess_block to wrap a
+link around the current block title.
 
-There is a also a option to disable the link from rendering around the title. 
+There is a also a option to disable the link from rendering around the title.
 This is useful for using the link elsewhere in the block template. For example:
 to link an icon, or add a "more" link.
 
 This module adds the following properties to the $block object:
-  - $block->title_link: The URL or path stored with each block.
-  - $block->title_link_title: The title attribute for the link.
-  - $block->title_link_target: The target attribute for the link.
+  - `$block->title_link`: The URL or path stored with each block.
+  - `$block->title_link_title`: The title attribute for the link.
+  - `$block->title_link_target`: The target attribute for the link.
 
 
 Installation <!-- This section is required. -->
 ------------
 
-- Install this module using the official Backdrop CMS instructions at
-  https://docs.backdropcms.org/documentation/extend-with-modules.
+- Install this module using the [official Backdrop CMS instructions](https://docs.backdropcms.org/documentation/extend-with-modules).
 
-- Manage blocks on any page via the configuration page under Administration >
-  Structure > Layouts (admin/structure/layouts) and provide the title link
+- Manage blocks on any page via the configuration page under **Administration >
+  Structure > Layouts** (admin/structure/layouts) and provide the title link
   information.
 
 
@@ -59,4 +58,3 @@ License <!-- This section is required. -->
 
 This project is GPL v2 software.
 See the LICENSE.txt file in this directory for complete text.
-
