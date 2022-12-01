@@ -1,7 +1,4 @@
+type = module
 name = Block Title Link
-description = Allows assigning links to Block Titles
-core = 7.x
-files[] = block_titlelink.info
-files[] = block_titlelink.install
-files[] = block_titlelink.module
-files[] = README.txt
+description = Allows block titles to be linked.
+backdrop = 1.x
