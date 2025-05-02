@@ -96,7 +96,7 @@ function block_titlelink_form(&$form, &$form_state) {
  */
 function block_titlelink_form_validate(&$form, &$form_state) {
   $title_link = trim($form_state['values']['block_titlelink']['title_link']);
-  if (!empty($title_link) && !link_validate_url($title_link)) {
+  if (!empty($title_link) && !link_validate_url(token_replace($title_link))) {
     form_error($elements['settings']['block_titlelink']['title_link'], t('The link destination contains an invalid URL.'));
   }
 }
@@ -129,14 +129,8 @@ function block_titlelink_preprocess_block(&$variables) {
     $variables['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
     $variables['block']->title_link_target = (isset($data['target'])) ? $data['target'] : NULL;
     // Add Tokens
-    if (function_exists('token_replace')) {
-      global $user;
-      $token_params = array(
-        'user' => $user,
-      );
-      $variables['block']->title_link = token_replace($variables['block']->title_link, $token_params);
-      $variables['block']->title_link_title = token_replace($variables['block']->title_link_title, $token_params);
-    }
+    $variables['block']->title_link = token_replace($variables['block']->title_link);
+    $variables['block']->title_link_title = token_replace($variables['block']->title_link_title);
 
     $display = (isset($data['display'])) ? $data['display'] : TRUE;
     if (!empty($variables['title']) && !empty($variables['block']->title_link) && $display) {
