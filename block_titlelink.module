@@ -5,7 +5,7 @@
 */
 
 /**
- * Implementation of hook_permission
+ * Implements hook_permission().
  */
 function block_titlelink_permission() {
   return array(
@@ -32,17 +32,29 @@ function block_titlelink_form_layout_block_configure_form_alter(&$form, &$form_s
  * Form elements.
  */
 function block_titlelink_form(&$form, &$form_state) {
-  $settings = array();
-  if (isset($form_state['block']->settings['block_titlelink'])) {
-    $settings = $form_state['block']->settings['block_titlelink'];
+  // Menu blocks have special handling for the title link.
+  $is_menu_block = (isset($form_state['block']->module) && $form_state['block']->module == 'menu');
+  $settings = array(
+    'path' => NULL,
+    'title' => NULL,
+    'target' => NULL,
+    'display' => TRUE,
+  );
+  if (isset($form_state['block']->settings['block_titlelink']) && is_array($form_state['block']->settings['block_titlelink'])) {
+    $settings = $form_state['block']->settings['block_titlelink'] + $settings;
+  }
+  $path = $settings['path'];
+  $title = $settings['title'];
+  $target = $settings['target'];
+  $display_link = $settings['display'];
+  if ($is_menu_block) {
+    $display_desc = t('When checked and the block title is showing, the title will be linked to the parent menu item.');
+  }
+  else {
+    $display_desc = t('When unchecked, the title will not be linked, but link settings set below will still be available in the block template. This can be used to place the link elsewhere in the block.');
   }
 
-  $path = (isset($settings['path'])) ? $settings['path'] : NULL;
-  $title = (isset($settings['title'])) ? $settings['title'] : NULL;
-  $target = (isset($settings['target'])) ? $settings['target'] : NULL;
-  $display_link = (isset($settings['display'])) ? $settings['display'] : TRUE;
-
-  // Define Titlelink form elements
+  // Define Titlelink form elements.
   $form['block_titlelink'] = array(
     '#type' => 'fieldset',
     '#title' => t('Block title link settings'),
@@ -54,39 +66,41 @@ function block_titlelink_form(&$form, &$form_state) {
   $form['block_titlelink']['display_link'] = array(
     '#type' => 'checkbox',
     '#title' => t('Render the block title as a link'),
-    '#description' => t('When unchecked, the title will not be linked, but link settings set below will still be available in the block template. This can be used to place the link elsewhere in the block.'),
+    '#description' => $display_desc,
     '#default_value' => $display_link,
   );
-  $form['block_titlelink']['title_link'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Link destination'),
-    '#default_value' => $path,
-    '#description' => t('Tokens are supported. When left blank, all block title link settings will be removed.'),
-    '#maxlength' => '255',
-  );
-  $targets = array(
-    '_blank' => '_blank: ' . t('Opens in a new window or tab.'),
-    '_parent' => '_parent: ' . t('Opens in the parent frame.'),
-    '_top' => '_top: ' . t('Opens in the full body of the window.'),
-    '_self' => '_self: ' . t('Opens in the same frame (this is the default behavior).'),
-  );
-  $form['block_titlelink']['title_link_target'] = array(
-    '#type' => 'select',
-    '#title' => t('Link target attribute'),
-    '#options' => $targets,
-    '#empty_value' => '',
-    '#default_value' => $target,
-  );
-  $form['block_titlelink']['title_link_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Link title attribute'),
-    '#description' => t('The &lt;a title="" &gt; attribute can clarify or further describe the purpose of a link. It appears only on hover.'),
-    '#default_value' => $title,
-  );
-  // Provide Token Help
-  $form['block_titlelink']['token_help'] = array(
-    '#theme' => 'token_tree',
-  );
+  if (!$is_menu_block) {
+    $form['block_titlelink']['title_link'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link destination'),
+      '#default_value' => $path,
+      '#description' => t('Tokens are supported. When left blank, all block title link settings will be removed.'),
+      '#maxlength' => '255',
+    );
+    $targets = array(
+      '_blank' => '_blank: ' . t('Opens in a new window or tab.'),
+      '_parent' => '_parent: ' . t('Opens in the parent frame.'),
+      '_top' => '_top: ' . t('Opens in the full body of the window.'),
+      '_self' => '_self: ' . t('Opens in the same frame (this is the default behavior).'),
+    );
+    $form['block_titlelink']['title_link_target'] = array(
+      '#type' => 'select',
+      '#title' => t('Link target attribute'),
+      '#options' => $targets,
+      '#empty_value' => '',
+      '#default_value' => $target,
+    );
+    $form['block_titlelink']['title_link_title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link title attribute'),
+      '#description' => t('The &lt;a title="" &gt; attribute can clarify or further describe the purpose of a link. It appears only on hover.'),
+      '#default_value' => $title,
+    );
+    // Provide Token Help.
+    $form['block_titlelink']['token_help'] = array(
+      '#theme' => 'token_tree',
+    );
+  }
 
   $form['#validate'][] = 'block_titlelink_form_validate';
 }
@@ -106,6 +120,13 @@ function block_titlelink_form_validate(&$form, &$form_state) {
  */
 function block_titlelink_form_submit(&$form, &$form_state) {
   $settings = array();
+  $defaults = array(
+    'path' => NULL,
+    'title' => NULL,
+    'target' => NULL,
+    'display' => TRUE,
+  );
+  $block = &$form_state['block'];
   $path = trim($form_state['values']['block_titlelink']['title_link']);
   if (!empty($path)) {
     $settings['path'] = $path;
@@ -113,54 +134,67 @@ function block_titlelink_form_submit(&$form, &$form_state) {
     $settings['target'] = $form_state['values']['block_titlelink']['title_link_target'];
     $settings['display'] = $form_state['values']['block_titlelink']['display_link'];
   }
+  elseif ($block->module == 'menu') {
+    // Allow menu blocks to turn off linking.
+    $settings['display'] = !empty($form_state['values']['block_titlelink']['display_link']);
+  }
 
-  $form_state['block']->settings['block_titlelink'] = $settings;
+  $form_state['block']->settings['block_titlelink'] = $settings + $defaults;
 }
 
 /**
  * Implements hook_preprocess_block().
  */
 function block_titlelink_preprocess_block(&$variables) {
-  if (isset($variables['block']->settings['block_titlelink'])) {
-
-    $data = $variables['block']->settings['block_titlelink'];
-
-    $variables['block']->title_link = (isset($data['path'])) ? trim($data['path']) : NULL;
-    $variables['block']->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
-    $variables['block']->title_link_target = (isset($data['target'])) ? $data['target'] : NULL;
-    // Add Tokens
-    $variables['block']->title_link = token_replace($variables['block']->title_link);
-    $variables['block']->title_link_title = token_replace($variables['block']->title_link_title);
-
+  $block = &$variables['block'];
+  $data = $block->settings['block_titlelink'];
+  if ($block->module == 'menu' || !empty($data['path'])) {
     $display = (isset($data['display'])) ? $data['display'] : TRUE;
-    if (!empty($variables['title']) && !empty($variables['block']->title_link) && $display) {
+    if ($display) {
       $attributes = array(
         'attributes' => array(
           'class' => array('block-title-link'),
         ),
-        'html' => TRUE,
       );
-      if(!empty($variables['block']->title_link_title)) {
-        $attributes['attributes']['title'] = $variables['block']->title_link_title;
+      $parsed_url = array();
+      if ($block->module == 'menu') {
+        $plid = reset($variables['content'])['#original_link']['plid'];
+        $menu_item = menu_link_load($plid);
+        $parsed_url['path'] = (isset($menu_item['link_path'])) ? trim($menu_item['link_path']) : NULL;
+        $variables['title'] = l(t($variables['title']), $parsed_url['path'], $attributes);
       }
-      if(!empty($variables['block']->title_link_target)) {
-        $attributes['attributes']['target'] = $variables['block']->title_link_target;
-      }
+      else {
+        $block->title_link = (isset($data['path'])) ? trim($data['path']) : NULL;
+        $block->title_link_title = (isset($data['title'])) ? check_plain($data['title']) : NULL;
+        $block->title_link_target = (isset($data['target'])) ? $data['target'] : NULL;
+        // Add Tokens.
+        $block->title_link = token_replace($block->title_link);
+        $block->title_link_title = token_replace($block->title_link_title);
+        if (!empty($variables['title']) && !empty($block->title_link) && $display) {
+          $attributes['html'] = TRUE;
+          if (!empty($block->title_link_title)) {
+            $attributes['attributes']['title'] = $block->title_link_title;
+          }
+          if (!empty($block->title_link_target)) {
+            $attributes['attributes']['target'] = $block->title_link_target;
+          }
 
-      // Allow Drupal to parse the URL and provide us with a keyed array
-      // that we can hand off to l()
-      $parsed_url = backdrop_parse_url($variables['block']->title_link);
+          // Allow Backdrop to parse the URL and provide us with a keyed array
+          // that we can hand off to l()
+          $parsed_url = backdrop_parse_url($block->title_link);
 
-      // Add in the query string if one exists.
-      if (!empty($parsed_url['query'])) {
-        $attributes['query'] = $parsed_url['query'];
-      }
-      // Build the fragment onto the end if it is present.
-      if (!empty($parsed_url['fragment'])) {
-        $attributes['fragment'] = $parsed_url['fragment'];
-      }
+          // Add in the query string if one exists.
+          if (!empty($parsed_url['query'])) {
+            $attributes['query'] = $parsed_url['query'];
+          }
+          // Build the fragment onto the end if it is present.
+          if (!empty($parsed_url['fragment'])) {
+            $attributes['fragment'] = $parsed_url['fragment'];
+          }
 
-      $variables['title'] = l(t($variables['title']), $parsed_url['path'], $attributes);
+          $variables['title'] = l(t($variables['title']), $parsed_url['path'], $attributes);
+        }
+      }
     }
   }
 }
