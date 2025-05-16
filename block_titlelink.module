@@ -147,7 +147,7 @@ function block_titlelink_form_submit(&$form, &$form_state) {
  */
 function block_titlelink_preprocess_block(&$variables) {
   $block = &$variables['block'];
-  $data = $block->settings['block_titlelink'];
+  $data = $block->settings['block_titlelink'] ?? array();
   if ($block->module == 'menu' || !empty($data['path'])) {
     $display = (isset($data['display'])) ? $data['display'] : TRUE;
     if ($display) {
