@@ -2,3 +2,5 @@ type = module
 name = Block Title Link
 description = Allows block titles to be linked.
 backdrop = 1.x
+
+php = 7.1
